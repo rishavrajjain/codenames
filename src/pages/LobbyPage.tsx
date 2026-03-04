@@ -11,6 +11,7 @@ import { ToastContainer } from '../components/ui/Toast'
 import { updatePlayerTeam, updatePlayerRole, startGame, leaveGame } from '../services/gameService'
 import { updateTimerConfig } from '../services/roomService'
 import { Player, Team, Role } from '../types/game'
+import { Modal } from '../components/ui/Modal'
 import { useEffect, useState } from 'react'
 
 export function LobbyPage() {
@@ -20,6 +21,7 @@ export function LobbyPage() {
   const { user } = useAuth()
   const { toasts, addToast, removeToast } = useToast()
   const [starting, setStarting] = useState(false)
+  const [showNewGameConfirm, setShowNewGameConfirm] = useState(false)
 
   useEffect(() => {
     if (game?.phase === 'playing') {
@@ -60,17 +62,18 @@ export function LobbyPage() {
     if (!roomCode) return
     const hasRedSpy = redTeam.some(p => p.role === 'spymaster')
     const hasBlueSpy = blueTeam.some(p => p.role === 'spymaster')
-    const hasRedOps = redTeam.some(p => p.role === 'operative')
-    const hasBlueOps = blueTeam.some(p => p.role === 'operative')
+    // const hasRedOps = redTeam.some(p => p.role === 'operative')
+    // const hasBlueOps = blueTeam.some(p => p.role === 'operative')
 
     if (!hasRedSpy || !hasBlueSpy) {
       addToast('Each team needs a spymaster', 'error')
       return
     }
-    if (!hasRedOps || !hasBlueOps) {
-      addToast('Each team needs at least one operative', 'error')
-      return
-    }
+    // Operative check relaxed for testing
+    // if (!hasRedOps || !hasBlueOps) {
+    //   addToast('Each team needs at least one operative', 'error')
+    //   return
+    // }
     if (unassigned.length > 0) {
       addToast('All players must join a team', 'error')
       return
@@ -90,9 +93,10 @@ export function LobbyPage() {
     navigate('/')
   }
 
-  function copyRoomCode() {
-    navigator.clipboard.writeText(roomCode || '')
-    addToast('Room code copied!', 'success')
+  function copyInviteLink() {
+    const link = `${window.location.origin}/join/${roomCode}`
+    navigator.clipboard.writeText(link)
+    addToast('Invite link copied!', 'success')
   }
 
   return (
@@ -105,11 +109,14 @@ export function LobbyPage() {
             <div>
               <h1 className="text-3xl font-bold">Game Lobby</h1>
               <button
-                onClick={copyRoomCode}
-                className="mt-1 flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer"
+                onClick={copyInviteLink}
+                className="mt-2 flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2 rounded-xl transition-all cursor-pointer"
               >
-                <span className="font-mono text-lg tracking-widest">{roomCode}</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-violet-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <span className="text-sm text-white/70 font-mono truncate">{window.location.origin}/join/{roomCode}</span>
+                <svg className="w-4 h-4 text-white/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </button>
@@ -177,14 +184,37 @@ export function LobbyPage() {
             </div>
           )}
 
-          {/* Start Button */}
+          {/* Start / New Game Buttons */}
           {isHost && (
-            <div className="text-center">
+            <div className="text-center flex justify-center gap-3">
               <Button size="lg" onClick={handleStart} loading={starting}>
                 Start Game
               </Button>
+              <Button size="lg" variant="secondary" onClick={() => setShowNewGameConfirm(true)}>
+                New Game
+              </Button>
             </div>
           )}
+
+          {/* New Game Confirmation Modal */}
+          <Modal open={showNewGameConfirm} onClose={() => setShowNewGameConfirm(false)} title="Start a new game?">
+            <p className="text-white/60">This will generate a new board with new words. Teams and players stay the same.</p>
+            <div className="flex gap-3 justify-end">
+              <Button variant="ghost" size="sm" onClick={() => setShowNewGameConfirm(false)}>Cancel</Button>
+              <Button size="sm" onClick={async () => {
+                setShowNewGameConfirm(false)
+                setStarting(true)
+                try {
+                  await startGame(roomCode!)
+                } catch {
+                  addToast('Failed to start new game', 'error')
+                  setStarting(false)
+                }
+              }}>
+                Confirm
+              </Button>
+            </div>
+          </Modal>
           {!isHost && (
             <p className="text-center text-white/40 text-sm">Waiting for host to start the game...</p>
           )}

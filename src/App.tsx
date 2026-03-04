@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { HomePage } from './pages/HomePage'
+import { JoinPage } from './pages/JoinPage'
 import { LobbyPage } from './pages/LobbyPage'
 import { PlayPage } from './pages/PlayPage'
 import { ResultsPage } from './pages/ResultsPage'
@@ -11,6 +12,7 @@ export default function App() {
       <AnimatePresence mode="wait">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/join/:roomCode" element={<JoinPage />} />
           <Route path="/game/:roomCode/lobby" element={<LobbyPage />} />
           <Route path="/game/:roomCode/play" element={<PlayPage />} />
           <Route path="/game/:roomCode/results" element={<ResultsPage />} />

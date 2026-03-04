@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "recipebutler-fd32c"
-  }
+  },
+  "targets": {
+    "recipebutler-fd32c": {
+      "hosting": {
+        "codenames": [
+          "rrjain"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

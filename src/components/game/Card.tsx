@@ -31,13 +31,14 @@ const spymasterDots: Record<CType, string> = {
 
 export function GameCard({ card, index, isSpymaster, canGuess, onGuess }: CardProps) {
   const revealed = card.revealed
+  const isLong = card.word.length > 6
 
   if (revealed) {
     return (
       <div
         className={`relative rounded-xl border-2 ${revealedColors[card.type]} flex items-center justify-center p-1 transition-all duration-500 min-h-[3.5rem] sm:min-h-[4.5rem]`}
       >
-        <span className="text-[0.65rem] sm:text-xs font-bold text-white/90 text-center leading-tight tracking-wide uppercase">
+        <span className={`${isLong ? 'text-[0.5rem]' : 'text-[0.65rem]'} sm:text-xs font-bold text-white/90 text-center leading-tight tracking-wide uppercase`}>
           {card.word}
         </span>
         {card.type === 'assassin' && (
@@ -59,7 +60,7 @@ export function GameCard({ card, index, isSpymaster, canGuess, onGuess }: CardPr
         ${spymasterStyle || 'border-white/10'}
       `}
     >
-      <span className="text-[0.65rem] sm:text-xs font-bold text-white/80 text-center leading-tight tracking-wide uppercase">
+      <span className={`${isLong ? 'text-[0.5rem]' : 'text-[0.65rem]'} sm:text-xs font-bold text-white/80 text-center leading-tight tracking-wide uppercase`}>
         {card.word}
       </span>
       {isSpymaster && (
