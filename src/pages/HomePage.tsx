@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Container } from '../components/layout/Container'
@@ -16,6 +16,15 @@ export function HomePage() {
   const [roomCode, setRoomCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  // Toggle: set to true to enable image crossfade on home screen
+  const SHOW_HOME_IMAGE = false
+  const [showImage, setShowImage] = useState(false)
+
+  useEffect(() => {
+    if (!SHOW_HOME_IMAGE) return
+    const timer = setTimeout(() => setShowImage(true), 4000)
+    return () => clearTimeout(timer)
+  }, [])
 
   if (authLoading) {
     return (
@@ -68,13 +77,28 @@ export function HomePage() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          {/* Title */}
-          <h1 className="text-6xl sm:text-8xl font-black tracking-tight mb-4">
-            <span className="bg-gradient-to-r from-red-team via-purple-400 to-blue-team bg-clip-text text-transparent">
-              CODENAMES
-            </span>
-          </h1>
-          <p className="text-white/40 text-lg mb-12">The classic word game, online</p>
+          {/* Title (with optional image crossfade controlled by SHOW_HOME_IMAGE) */}
+          <div className="relative mb-0">
+            <motion.h1
+              animate={SHOW_HOME_IMAGE ? { opacity: showImage ? 0 : 1, scale: showImage ? 0.8 : 1 } : {}}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              className={`text-6xl sm:text-8xl font-black tracking-tight ${SHOW_HOME_IMAGE && showImage ? 'absolute inset-0 pointer-events-none' : ''}`}
+            >
+              <span className="bg-gradient-to-r from-red-team via-purple-400 to-blue-team bg-clip-text text-transparent">
+                CODENAMES
+              </span>
+            </motion.h1>
+            {SHOW_HOME_IMAGE && (
+              <motion.img
+                src="/images/homeimage.png"
+                alt="Codenames"
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: showImage ? 1 : 0, scale: showImage ? 1 : 0.85 }}
+                transition={{ duration: 1.2, ease: 'easeInOut' }}
+                className={`w-48 sm:w-64 mx-auto -mb-4 ${!showImage ? 'absolute inset-0 m-auto pointer-events-none' : ''}`}
+              />
+            )}
+          </div>
 
           {/* Cards */}
           <motion.div
