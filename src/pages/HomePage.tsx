@@ -17,7 +17,7 @@ export function HomePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   // Toggle: set to true to enable image crossfade on home screen
-  const SHOW_HOME_IMAGE = false
+  const SHOW_HOME_IMAGE = true
   const [showImage, setShowImage] = useState(false)
 
   useEffect(() => {
