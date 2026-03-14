@@ -7,6 +7,10 @@ import { Input } from '../components/ui/Input'
 import { Spinner } from '../components/ui/Spinner'
 import { useAuth } from '../hooks/useAuth'
 import { joinRoom } from '../services/roomService'
+import { joinMrWhiteRoom } from '../services/mrwhiteRoomService'
+import { joinPsychRoom } from '../services/psychRoomService'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '../config/firebase'
 
 export function JoinPage() {
   const { roomCode } = useParams<{ roomCode: string }>()
@@ -30,8 +34,25 @@ export function JoinPage() {
     setError('')
     try {
       const code = roomCode.toUpperCase()
-      await joinRoom(code, user.uid, name.trim())
-      navigate(`/game/${code}/lobby`)
+
+      // Detect game type
+      const ref = doc(db, 'games', code)
+      const snap = await getDoc(ref)
+      if (!snap.exists()) throw new Error('Room not found')
+
+      const data = snap.data()
+      const gameType = data.gameType === 'psych' ? 'psych' : data.gameType === 'mrwhite' ? 'mrwhite' : 'codenames'
+
+      if (gameType === 'psych') {
+        await joinPsychRoom(code, user.uid, name.trim())
+        navigate(`/psych/${code}/lobby`)
+      } else if (gameType === 'mrwhite') {
+        await joinMrWhiteRoom(code, user.uid, name.trim())
+        navigate(`/mrwhite/${code}/lobby`)
+      } else {
+        await joinRoom(code, user.uid, name.trim())
+        navigate(`/game/${code}/lobby`)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to join room')
     } finally {
@@ -54,7 +75,7 @@ export function JoinPage() {
         >
           <h1 className="text-5xl sm:text-7xl font-black tracking-tight mb-4">
             <span className="bg-gradient-to-r from-red-team via-purple-400 to-blue-team bg-clip-text text-transparent">
-              CODENAMES
+              PARTY GAMES
             </span>
           </h1>
           <p className="text-white/40 text-lg mb-8">

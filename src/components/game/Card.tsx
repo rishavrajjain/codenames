@@ -31,14 +31,15 @@ const spymasterDots: Record<CType, string> = {
 
 export function GameCard({ card, index, isSpymaster, canGuess, onGuess }: CardProps) {
   const revealed = card.revealed
-  const isLong = card.word.length > 6
+  const isVeryLong = card.word.length > 8
+  const textSize = isVeryLong ? 'text-[0.6rem] sm:text-xs' : 'text-[0.7rem] sm:text-xs'
 
   if (revealed) {
     return (
       <div
         className={`relative rounded-xl border-2 ${revealedColors[card.type]} flex items-center justify-center p-1 transition-all duration-500 min-h-[3.5rem] sm:min-h-[4.5rem]`}
       >
-        <span className={`${isLong ? 'text-[0.5rem]' : 'text-[0.65rem]'} sm:text-xs font-bold text-white/90 text-center leading-tight tracking-wide uppercase`}>
+        <span className={`${textSize} font-bold text-white/90 text-center leading-tight tracking-wide uppercase select-none`}>
           {card.word}
         </span>
         {card.type === 'assassin' && (
@@ -53,18 +54,18 @@ export function GameCard({ card, index, isSpymaster, canGuess, onGuess }: CardPr
 
   return (
     <button
-      onClick={() => clickable && onGuess(index)}
+      onClick={() => onGuess(index)}
       disabled={!clickable}
-      className={`relative rounded-xl border-2 bg-navy-700/80 hover:bg-navy-600/80 flex items-center justify-center p-1 transition-all duration-200 min-h-[3.5rem] sm:min-h-[4.5rem] cursor-pointer disabled:cursor-default
-        ${clickable ? 'hover:scale-105 hover:-translate-y-0.5 hover:shadow-lg active:scale-95' : ''}
+      className={`relative rounded-xl border-2 bg-navy-700/80 flex items-center justify-center p-1 min-h-[3.5rem] sm:min-h-[4.5rem] select-none
+        ${clickable ? 'cursor-pointer active:scale-[0.97] active:bg-navy-500/80 hover:ring-2 hover:ring-white/20 hover:bg-navy-600/80 transition-colors duration-100' : 'cursor-default transition-all duration-200'}
         ${spymasterStyle || 'border-white/10'}
       `}
     >
-      <span className={`${isLong ? 'text-[0.5rem]' : 'text-[0.65rem]'} sm:text-xs font-bold text-white/80 text-center leading-tight tracking-wide uppercase`}>
+      <span className={`${textSize} font-bold text-white/80 text-center leading-tight tracking-wide uppercase pointer-events-none`}>
         {card.word}
       </span>
       {isSpymaster && (
-        <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${spymasterDots[card.type]}`} />
+        <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${spymasterDots[card.type]} pointer-events-none`} />
       )}
     </button>
   )

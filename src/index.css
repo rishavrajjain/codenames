@@ -26,6 +26,11 @@
   #root {
     min-height: 100vh;
   }
+  /* Fix mobile touch: kill 300ms delay, double-tap-zoom, and tap highlight */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
 }
 
 /* Glass effect classes */
